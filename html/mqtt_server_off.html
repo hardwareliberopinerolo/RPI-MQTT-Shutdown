@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Spegni Server via MQTT</title>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <script>
+    var connessione;
+    //------------------------------------------------
+    function startConnect() {
+      //document.getElementById("pulsante_B").disabled = false;
+      //document.getElementById("pulsante_A").disabled = true;
+      //document.getElementById("pulsante_C").disabled = false;
+      //client = mqtt.connect('wss://192.168.0.105:9002');
+      client = mqtt.connect('ws://192.168.0.105:9002');
+      //setup the callbacks
+      client.on('connect', function () {
+        //document.getElementById("con").value="CON";
+        sottoscrivi();
+      });
+      client.on('error', function (error) {
+        console.log(error);
+      });
+      client.on('end', function () {
+        //console.log("Disconnesso");
+        //document.getElementById("con").value="disconnesso";
+        //document.getElementById("pulsante_B").disabled = true;
+        //document.getElementById("pulsante_A").disabled = false;
+        //document.getElementById("pulsante_C").disabled = true;
+        //document.getElementById("pulsante_A").innerHTML="Connetti a MQTT";
+      });
+      //---Called each time a message is received
+      client.on('message', function (topic, message) {
+        message=message.toString();
+        messaggio(topic, message); //Funzione che gestisce i messaggi
+      });
+    } //startConnect() 
+    //------------------------------------------------
+    function sottoscrivi(){
+      // subscribe to topic 'my/test/topic'
+      client.subscribe('PC/poweroff/');
+      //client.subscribe('SLIP_esp8266/led_feedback');
+      //client.publish('SLIP_esp8266/temperatura_A', '25');
+      document.getElementById("con").value="CONNESSO";
+      connessione="ON";
+    }
+    //---Eseguita ad ogni messaggio ricevuto----------
+    function messaggio(topic, message) {
+      if(topic=='SLIP_esp8266/temperatura_A'){
+        //document.getElementById("tsud").value=message;
+        ;
+      }
+      if(topic=='SLIP_esp8266/temperatura_B'){
+        //document.getElementById("tnord").value=message;
+        
+      }
+      
+    }
+    //------------------------------------------------
+    function fserveroff(){
+      if(connessione=="ON"){
+        //document.getElementById("lsud").value="ACCESA";
+        client.publish('PC/poweroff/', "off");
+        //Gauge.Collection.get('gauge1').setValue(25.76);
+        stopConnect();
+      }  
+    }
+ 
+
+    //---console.log('Disconnected')------------------
+    function stopConnect() {
+      document.getElementById("con").value="sconnesso";
+      connessione="OFF";
+      client.end()
+    }
+</script>
+      
+  <style>
+    .intestazione{
+      color:red;
+      width:350px;
+      text-align:center;
+    }
+    .pulsantiA{
+      border-radius: 22px;
+      background-color:green;
+      color:yellow;
+      height:30px;
+      width:350px;
+      font-size:22px;
+    }
+    .pulsantiB{
+      border-radius: 22px;
+      background-color:red;
+      color:yellow;
+      height:30px;
+      width:350px;
+      font-size:22px;
+    }
+    .lconn{
+      width:350;
+      text-align:center;
+    }
+    .pulsantiC{
+      border-radius: 22px;
+      background-color:blue;
+      color:yellow;
+      height:30px;
+      width:175px;
+      padding: 10px,0,10px,20px;
+      font-size:22px;
+    }
+    .pulsantiD{
+      border-radius: 22px;
+      background-color:cyan;
+      color:blue;
+      height:30px;
+      width:175px;
+      padding: 10px,0,10px,20px;
+      font-size:22px;
+    }
+    .balconeS{
+      width:175px;
+      text-align:center;
+    }
+    .balconeN{
+      width:175px;
+      text-align:center;
+    }
+    .txtspenta{
+      width:165px;
+      text-align:center;
+    }
+  </style>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <td>      
+          <h1 class="intestazione">Spegni Server via MQTT</h1>
+        </td>
+      </tr>
+    </table>
+    
+    <table>
+      <tr>
+        <td>
+          <input class="pulsantiA" type="button" id="pConn" value="Connessione MQTT" onclick="startConnect()">
+        </td>
+      </tr>
+      <tr>  
+        <td> 
+          <input class="lconn" type="text" id="con" value="sconnesso" size="40px">
+        </td>
+      </tr>
+      <tr>  
+        <td>  
+          <input class="pulsantiB" type="button" id="pDis" value="Sconnessione MQTT" onclick="stopConnect()">
+        </td>
+      </tr>
+    </table>
+    
+    <table>  
+      <tr>
+
+        <td>
+          <input class="pulsantiC" type="button" id="pserver" value="Server OFF" onclick="fserveroff()">
+        </td>
+
+      </tr>
+
+    </table>
+  </body>
+</html>
